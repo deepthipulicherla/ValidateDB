@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-1
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  test-runner:
+    image: maven:3.9.9-eclipse-temurin-21
+    container_name: test-runner-1
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: >
+      mvn clean test
+      -DDB_URL=jdbc:mysql://mysql:3306/appdb
+      -DDB_USER=appuser
+      -DDB_PASSWORD=apppass
+    # results will be written to /workspace/target/allure-results
+
+  allure:
+    image: frankescobar/allure-docker-service
+    container_name: allure-report
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./allure-results:/app/allure-results
+    depends_on:
+      - test-runner
+

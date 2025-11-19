@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="DatabaseValidationSuite" verbose="1">
+
+    <listeners>
+        <!-- Allure listener for reporting -->
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <test name="DatabaseValidationTests">
+        <classes>
+            <class name="tests.DbValidationTest">
+                <!-- Run methods in the exact order you want
+                <methods>
+                    <include name="testActiveUsersExist"/>
+                    <include name="testDuplicateUsersExit"/>
+                    <include name="testSecondHighestSalary"/>
+                    <include name="testDeleteDuplicate"/>
+                </methods>  -->
+            </class>
+        </classes>
+    </test>
+
+</suite>
