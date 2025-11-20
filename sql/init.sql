@@ -1,9 +1,9 @@
 CREATE DATABASE IF NOT EXISTS appdb;
 USE appdb;
 
-CREATE USER 'testuser'@'%' IDENTIFIED BY 'testpass';
-GRANT ALL PRIVILEGES ON appdb.* TO 'testuser'@'%';
-FLUSH PRIVILEGES;
+--CREATE USER 'testuser'@'%' IDENTIFIED BY 'testpass';
+--GRANT ALL PRIVILEGES ON appdb.* TO 'testuser'@'%';
+--FLUSH PRIVILEGES;
 
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
