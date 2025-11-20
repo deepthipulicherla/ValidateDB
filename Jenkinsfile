@@ -14,11 +14,11 @@ pipeline {
           args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
         }
       }
-     steps {
-       sh 'docker-compose down -v || true'
-       sh 'docker rm -f test-runner-1 || true'
-       sh 'docker-compose -p $(echo ${BUILD_TAG} | tr "[:upper:]" "[:lower:]") up --abort-on-container-exit --build''
-     }
+      steps {
+        sh 'docker-compose down -v || true'
+        sh 'docker rm -f test-runner-1 || true'
+        sh 'docker-compose -p $(echo ${BUILD_TAG} | tr "[:upper:]" "[:lower:]") up --abort-on-container-exit --build'
+      }
       post {
         always {
           sh 'docker-compose -p $(echo ${BUILD_TAG} | tr "[:upper:]" "[:lower:]") down -v || true'
@@ -37,4 +37,4 @@ pipeline {
       archiveArtifacts artifacts: 'allure-results/**', fingerprint: true
     }
   }
- }
+}
