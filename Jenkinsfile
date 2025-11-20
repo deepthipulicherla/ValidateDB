@@ -15,6 +15,8 @@ pipeline {
         }
       }
       steps {
+        sh 'docker-compose down -v || true'
+        sh 'docker rm -f mysql-1 || true'
         sh 'docker-compose up --abort-on-container-exit --build'
       }
       post {
