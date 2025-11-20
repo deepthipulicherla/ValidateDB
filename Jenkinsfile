@@ -37,3 +37,4 @@ pipeline {
       archiveArtifacts artifacts: 'allure-results/**', fingerprint: true
     }
   }
+ }
