@@ -1,8 +1,6 @@
-version: "3.9"
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql-1
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: appdb
@@ -15,9 +13,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   test-runner:
     image: maven:3.9.9-eclipse-temurin-21
-    container_name: test-runner-1
     depends_on:
       mysql:
         condition: service_healthy
@@ -33,11 +31,9 @@ services:
 
   allure:
     image: frankescobar/allure-docker-service
-    container_name: allure-report
     ports:
       - "5050:5050"
     volumes:
       - ./allure-results:/app/allure-results
     depends_on:
       - test-runner
-
