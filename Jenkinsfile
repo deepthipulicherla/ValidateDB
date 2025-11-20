@@ -1,11 +1,6 @@
 pipeline {
-  agent {
-    docker {
-      image 'depul/maven-docker:latest'
-      args '-v /var/run/docker.sock:/var/run/docker.sock'
-      label 'docker'
-    }
-  }
+  agent { label 'docker' }
+
   stages {
     stage('Checkout') {
       steps {
@@ -13,6 +8,12 @@ pipeline {
       }
     }
     stage('Run Tests in Docker Compose') {
+      agent {
+        docker {
+          image 'depul/maven-docker:latest'
+          args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+      }
       steps {
         sh 'docker-compose up --abort-on-container-exit --build'
       }
@@ -23,12 +24,11 @@ pipeline {
       }
     }
   }
+
   post {
     always {
-      node {
-        junit 'target/surefire-reports/*.xml'
-        archiveArtifacts artifacts: 'allure-results/**', fingerprint: true
-      }
+      junit 'target/surefire-reports/*.xml'
+      archiveArtifacts artifacts: 'allure-results/**', fingerprint: true
     }
   }
 }
