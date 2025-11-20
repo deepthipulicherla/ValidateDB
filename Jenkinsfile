@@ -18,11 +18,11 @@ pipeline {
         // Pre-clean to avoid leftover containers/networks
         sh 'docker-compose down -v || true'
         // Use lowercase build tag safely
-        sh "docker-compose -p $(echo ${BUILD_TAG} | tr '[:upper:]' '[:lower:]') up --abort-on-container-exit --build"
+        sh "docker-compose -p $(echo \$BUILD_TAG | tr '[:upper:]' '[:lower:]') up --abort-on-container-exit --build"
       }
       post {
         always {
-          sh "docker-compose -p $(echo ${BUILD_TAG} | tr '[:upper:]' '[:lower:]') down -v || true"
+          sh "docker-compose -p $(echo \$BUILD_TAG | tr '[:upper:]' '[:lower:]') down -v || true"
         }
       }
     }
