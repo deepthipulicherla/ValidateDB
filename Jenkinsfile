@@ -1,24 +1,34 @@
-// Jenkinsfile
 pipeline {
-  agent { docker { image 'maven:3.9.9-eclipse-temurin-21' } }
+  agent {
+    docker {
+      image 'maven-docker:latest'
+      args '-v /var/run/docker.sock:/var/run/docker.sock'
+    }
+  }
+
   stages {
     stage('Checkout') {
-      steps { checkout scm }
+      steps {
+        git url: 'https://github.com/deepthipulicherla/ValidateDB.git', branch: 'main'
+      }
     }
+
     stage('Run Tests in Docker Compose') {
       steps {
-        sh 'docker compose up --abort-on-container-exit --build'
+        sh 'docker-compose up --abort-on-container-exit --build'
       }
       post {
         always {
-          sh 'docker compose down -v'
+          sh 'docker-compose down -v'
         }
       }
     }
   }
+
   post {
     always {
       junit 'target/surefire-reports/*.xml'
+      archiveArtifacts artifacts: 'allure-results/**', fingerprint: true
     }
   }
 }
