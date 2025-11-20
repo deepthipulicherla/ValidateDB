@@ -17,11 +17,11 @@ pipeline {
      steps {
        sh 'docker-compose down -v || true'
        sh 'docker rm -f test-runner-1 || true'
-       sh 'docker-compose -p ${BUILD_TAG} up --abort-on-container-exit --build'
+       sh 'docker-compose -p $(echo ${BUILD_TAG} | tr "[:upper:]" "[:lower:]") up --abort-on-container-exit --build''
      }
       post {
         always {
-          sh 'docker-compose -p ${BUILD_TAG} down -v'
+          sh 'docker-compose -p $(echo ${BUILD_TAG} | tr "[:upper:]" "[:lower:]") down -v || true'
         }
       }
     }
