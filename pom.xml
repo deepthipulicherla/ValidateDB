@@ -67,7 +67,8 @@
 
     <build>
         <plugins>
-            <!-- Surefire plugin to run TestNG with DB props and testng.xml -->
+            <!-- Surefire plugin to run TestNG with testng.xml -->
+            <!-- We pass DB_URL/DB_USER/DB_PASSWORD via -D in docker-compose, so no systemPropertyVariables here -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -76,11 +77,6 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
-                    <systemPropertyVariables>
-                        <DB_URL>${env.DB_URL}</DB_URL>
-                        <DB_USER>${env.DB_USER}</DB_USER>
-                        <DB_PASSWORD>${env.DB_PASSWORD}</DB_PASSWORD>
-                    </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
@@ -88,7 +84,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Allure Maven plugin -->
+            <!-- Allure Maven plugin (collects results into target/allure-results) -->
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
