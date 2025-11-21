@@ -26,7 +26,7 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      # Mount the actual Jenkins workspace folder containing pom.xml and testng.xml
+      # Mount the Jenkins job workspace folder containing pom.xml
       - /var/jenkins_home/workspace/MysqlDBValidation:/app
     working_dir: /app
     command: >
