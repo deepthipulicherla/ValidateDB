@@ -1,43 +1,41 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
+    container_name: mysqldbvalidation-mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: appdb
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
-    volumes:
-      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
       interval: 10s
       timeout: 5s
-      retries: 5
-    restart: unless-stopped
+      retries: 10
 
   test-runner:
     image: maven:3.9.9-eclipse-temurin-21
+    container_name: mysqldbvalidation-test-runner
     depends_on:
       mysql:
         condition: service_healthy
     volumes:
-      - .:/workspace
-    working_dir: /workspace
+      - .:/app
+    working_dir: /app
     command: >
       mvn clean test
       -DDB_URL=jdbc:mysql://mysql:3306/appdb
       -DDB_USER=appuser
       -DDB_PASSWORD=apppass
-    restart: on-failure
-    # Maven will generate JUnit XMLs in target/surefire-reports
-    # and Allure results in target/allure-results
 
   allure:
     image: frankescobar/allure-docker-service
+    container_name: mysqldbvalidation-allure
     ports:
       - "5050:5050"
     volumes:
       - ./target/allure-results:/app/allure-results
-    depends_on:
-      - test-runner
-    restart: unless-stopped
