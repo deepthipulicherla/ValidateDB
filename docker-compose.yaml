@@ -26,7 +26,8 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      - .:/app
+      # Mount the actual Jenkins workspace folder containing pom.xml
+      - ./ValidateDB:/app
     working_dir: /app
     command: >
       mvn clean test
