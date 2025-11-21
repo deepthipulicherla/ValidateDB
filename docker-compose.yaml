@@ -6,6 +6,7 @@ services:
       MYSQL_DATABASE: appdb
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
+    # Mount init.sql only if it exists and is a valid file
     volumes:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
@@ -34,6 +35,7 @@ services:
     ports:
       - "5050:5050"
     volumes:
+      # Ensure this directory exists and is writable (chmod 777 allure-results)
       - ./allure-results:/app/allure-results
     depends_on:
       - test-runner
