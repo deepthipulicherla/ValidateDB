@@ -36,6 +36,6 @@ services:
     image: frankescobar/allure-docker-service
     container_name: mysqldbvalidation-allure
     ports:
-      - "5050:5050"
+      - "5051:5050"
     volumes:
       - ./target/allure-results:/app/allure-results
