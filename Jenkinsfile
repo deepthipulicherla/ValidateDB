@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage('Verify Allure Installation') {
       steps {
-        // Quick sanity check to ensure Allure is available
+        // Sanity check to confirm Allure is available
         sh 'allure --version'
       }
     }
