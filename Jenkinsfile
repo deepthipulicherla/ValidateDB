@@ -7,15 +7,20 @@ pipeline {
         git url: 'https://github.com/deepthipulicherla/ValidateDB.git', branch: 'main'
       }
     }
+
     stage('Run Tests in Docker Compose') {
       agent {
         docker {
           image 'depul/maven-docker:latest'
-          args '-v /var/run/docker.sock:/var/run/docker.sock --user root'
+          // Mount Docker socket and run as root
+          args '-v /var/run/docker.sock:/var/run/docker.sock --user=root'
         }
       }
       steps {
+        // Clean up any leftovers
         sh 'docker-compose down -v || true'
+
+        // Run tests with lowercase project name
         sh 'docker-compose -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") up --abort-on-container-exit --build'
       }
       post {
