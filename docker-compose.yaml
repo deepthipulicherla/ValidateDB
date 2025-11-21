@@ -6,7 +6,6 @@ services:
       MYSQL_DATABASE: appdb
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
-    # Mount init.sql only if it exists and is a valid file
     volumes:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
@@ -14,6 +13,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   test-runner:
     image: maven:3.9.9-eclipse-temurin-21
@@ -28,14 +28,16 @@ services:
       -DDB_URL=jdbc:mysql://mysql:3306/appdb
       -DDB_USER=appuser
       -DDB_PASSWORD=apppass
-    # results will be written to /workspace/target/allure-results
+    restart: on-failure
+    # Maven will generate JUnit XMLs in target/surefire-reports
+    # and Allure results in target/allure-results
 
   allure:
     image: frankescobar/allure-docker-service
     ports:
       - "5050:5050"
     volumes:
-      # Ensure this directory exists and is writable (chmod 777 allure-results)
-      - ./allure-results:/app/allure-results
+      - ./target/allure-results:/app/allure-results
     depends_on:
       - test-runner
+    restart: unless-stopped

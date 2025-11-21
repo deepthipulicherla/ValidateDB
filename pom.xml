@@ -40,6 +40,7 @@
             <artifactId>HikariCP</artifactId>
             <version>${hikari.version}</version>
         </dependency>
+
         <!-- Allure TestNG integration -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
@@ -48,7 +49,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Optional: Allure Java Commons (for annotations like @Step, @Attachment) -->
+        <!-- Optional: Allure Java Commons -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-java-commons</artifactId>
@@ -56,7 +57,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Logging (optional but recommended) -->
+        <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -66,7 +67,7 @@
 
     <build>
         <plugins>
-            <!-- Surefire plugin to run TestNG -->
+            <!-- Surefire plugin to run TestNG with DB props and testng.xml -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -80,17 +81,10 @@
                         <DB_USER>${env.DB_USER}</DB_USER>
                         <DB_PASSWORD>${env.DB_PASSWORD}</DB_PASSWORD>
                     </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <!-- Surefire plugin to run TestNG with testng.xml -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
                     <suiteXmlFiles>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                 </configuration>
             </plugin>
 
