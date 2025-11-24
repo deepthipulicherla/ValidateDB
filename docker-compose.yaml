@@ -1,9 +1,6 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysqldbvalidation-mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: appdb
@@ -21,12 +18,10 @@ services:
 
   test-runner:
     image: maven:3.9.9-eclipse-temurin-21
-    container_name: mysqldbvalidation-test-runner
     depends_on:
       mysql:
         condition: service_healthy
     volumes:
-      # Mount the Jenkins job workspace folder containing pom.xml
       - /var/jenkins_home/workspace/MysqlDBValidation:/app
     working_dir: /app
     command: >
