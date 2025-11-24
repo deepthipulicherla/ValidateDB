@@ -6,8 +6,9 @@ services:
       MYSQL_DATABASE: appdb
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
-    ports:
-      - "3307:3306"
+    # remove ports section for Jenkins
+    #ports:
+      #- "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
       interval: 15s
