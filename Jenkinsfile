@@ -1,7 +1,25 @@
 pipeline {
   agent any
 
+  options {
+    // Avoid default SCM checkout twice
+    skipDefaultCheckout(true)
+    // Fail faster if a stage hangs
+    timeout(time: 30, unit: 'MINUTES')
+  }
+
   stages {
+    stage('Checkout') {
+      steps {
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: '*/main']],
+          userRemoteConfigs: [[url: 'https://github.com/deepthipulicherla/ValidateDB.git']],
+          extensions: [[$class: 'CloneOption', depth: 1, noTags: true, shallow: true]]
+        ])
+      }
+    }
+
     stage('Verify Allure Installation') {
       steps {
         sh 'allure --version'
@@ -10,7 +28,9 @@ pipeline {
 
     stage('Run Tests in Docker Compose') {
       steps {
-        sh 'docker-compose down -v || true'
+        // Clean up any leftover containers/volumes
+        sh 'docker-compose down --remove-orphans -v || true'
+        // Run Compose with unique project name
         sh '''
           docker-compose \
             -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") \
@@ -19,7 +39,7 @@ pipeline {
       }
       post {
         always {
-          sh 'docker-compose -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") down -v || true'
+          sh 'docker-compose -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") down --remove-orphans -v || true'
         }
       }
     }
@@ -32,8 +52,11 @@ pipeline {
           junit 'target/surefire-reports/*.xml'
         }
       }
-      archiveArtifacts artifacts: 'target/allure-results/**', fingerprint: true
-      allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
+      // Retry non-resumable steps in case Jenkins restarts
+      retry(2) {
+        archiveArtifacts artifacts: 'target/allure-results/**', fingerprint: true
+        allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
+      }
     }
   }
 }
