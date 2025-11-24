@@ -22,7 +22,7 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      - /var/jenkins_home/workspace/MysqlDBValidation:/app
+      - ${WORKSPACE}:/app   # Mount Jenkins job workspace dynamically
     working_dir: /app
     command: >
       mvn clean test

@@ -11,7 +11,11 @@ pipeline {
     stage('Run Tests in Docker Compose') {
       steps {
         sh 'docker-compose down -v || true'
-        sh 'docker-compose -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") up --abort-on-container-exit --build'
+        sh '''
+          docker-compose \
+            -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") \
+            up --abort-on-container-exit --build
+        '''
       }
       post {
         always {
