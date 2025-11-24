@@ -22,7 +22,7 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      - ${WORKSPACE}:/app   # Mount Jenkins job workspace dynamically
+      - ${WORKSPACE:-C:/Users/Deepthi/IdeaProjects/MysqlDatabaseValidation}:/app
     working_dir: /app
     command: >
       mvn clean test
