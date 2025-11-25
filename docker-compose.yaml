@@ -1,21 +1,17 @@
-version: '3.9'
-
 services:
   mysql:
     image: mysql:8.0
     container_name: mysqldatabasevalidation-mysql-1
-    user: "1000:1000"   # Fix permission issue for Jenkins
+    user: "1000:1000"
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: appdb
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
-    ports:
-      - "3306:3306"     # Optional: Remove if not required locally
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d:ro  # Mount SQL scripts as readonly
-    healthcheck:  # Added healthcheck to ensure DB is up before tests
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-papppass"]
       interval: 5s
       retries: 10
