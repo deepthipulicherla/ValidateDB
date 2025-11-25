@@ -6,9 +6,6 @@ services:
       MYSQL_DATABASE: appdb
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
-    # remove ports section for Jenkins
-    #ports:
-    #  - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
       interval: 15s
@@ -16,7 +13,7 @@ services:
       retries: 15
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d   # mount directory, not single file
+      - ./sql:/docker-entrypoint-initdb.d   # ✅ mount directory, not single file
 
   test-runner:
     image: maven:3.9.9-eclipse-temurin-21
