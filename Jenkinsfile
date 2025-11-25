@@ -21,28 +21,35 @@ pipeline {
 
       stage('Verify DB Init') {
         steps {
-          // Run a quick query inside the MySQL container to confirm table exists and has rows
-          sh '''
-            docker exec mysqldatabasevalidation-mysql-1 \
-              mysql -uappuser -papppass -D appdb -e "SELECT COUNT(*) AS row_count FROM users;"
-          '''
+          script {
+            def result = sh(
+              script: '''
+                docker exec mysqldatabasevalidation-mysql-1 \
+                  mysql -uappuser -papppass -D appdb -N -e "SELECT COUNT(*) FROM users;"
+              ''',
+              returnStdout: true
+            ).trim()
+            if (result == "0" || result == "") {
+              error "Database initialization failed: users table is empty or missing."
+            } else {
+              echo "Database initialized successfully with ${result} rows."
+            }
+          }
         }
       }
 
       stage('Run Tests in Docker Compose') {
         steps {
-          // Clean up any leftover containers/volumes
           sh 'docker-compose down --remove-orphans -v || true'
-          // Run Compose with unique project name
           sh '''
             docker-compose \
-              -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") \
+              -p mysqldatabasevalidation \
               up --abort-on-container-exit --build
           '''
         }
         post {
           always {
-            sh 'docker-compose -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") down --remove-orphans -v || true'
+            sh 'docker-compose -p mysqldatabasevalidation down --remove-orphans -v || true'
           }
         }
       }

@@ -1,6 +1,9 @@
+version: '3.9'
+
 services:
   mysql:
     image: mysql:8.0
+    container_name: mysqldatabasevalidation-mysql-1
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: appdb
@@ -13,10 +16,11 @@ services:
       retries: 15
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d   # ✅ mount directory, not single file
+      - ./sql:/docker-entrypoint-initdb.d   # ✅ mount directory containing init.sql
 
   test-runner:
     image: maven:3.9.9-eclipse-temurin-21
+    container_name: mysqldatabasevalidation-test-runner-1
     depends_on:
       mysql:
         condition: service_healthy
