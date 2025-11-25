@@ -1,12 +1,5 @@
 pipeline {
-  agent any
-
-  options {
-    // Avoid default SCM checkout twice
-    skipDefaultCheckout(true)
-    // Fail faster if a stage hangs
-    timeout(time: 30, unit: 'MINUTES')
-  }
+  agent { label 'dbvalidate' }
 
   stages {
     stage('Checkout') {
