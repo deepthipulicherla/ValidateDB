@@ -2,54 +2,63 @@ pipeline {
   agent any
 
   stages {
-    stage('Checkout') {
-      steps {
-        checkout([
-          $class: 'GitSCM',
-          branches: [[name: '*/main']],
-          userRemoteConfigs: [[url: 'https://github.com/deepthipulicherla/ValidateDB.git']],
-          extensions: [[$class: 'CloneOption', depth: 1, noTags: true, shallow: true]]
-        ])
+      stage('Checkout') {
+        steps {
+          checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/main']],
+            userRemoteConfigs: [[url: 'https://github.com/deepthipulicherla/ValidateDB.git']],
+            extensions: [[$class: 'CloneOption', depth: 1, noTags: true, shallow: true]]
+          ])
+        }
+      }
+
+      stage('Verify Allure Installation') {
+        steps {
+          sh 'allure --version'
+        }
+      }
+
+      stage('Verify DB Init') {
+        steps {
+          // Run a quick query inside the MySQL container to confirm table exists and has rows
+          sh '''
+            docker exec mysqldatabasevalidation-mysql-1 \
+              mysql -uappuser -papppass -D appdb -e "SELECT COUNT(*) AS row_count FROM users;"
+          '''
+        }
+      }
+
+      stage('Run Tests in Docker Compose') {
+        steps {
+          // Clean up any leftover containers/volumes
+          sh 'docker-compose down --remove-orphans -v || true'
+          // Run Compose with unique project name
+          sh '''
+            docker-compose \
+              -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") \
+              up --abort-on-container-exit --build
+          '''
+        }
+        post {
+          always {
+            sh 'docker-compose -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") down --remove-orphans -v || true'
+          }
+        }
       }
     }
 
-    stage('Verify Allure Installation') {
-      steps {
-        sh 'allure --version'
-      }
-    }
-
-    stage('Run Tests in Docker Compose') {
-      steps {
-        // Clean up any leftover containers/volumes
-        sh 'docker-compose down --remove-orphans -v || true'
-        // Run Compose with unique project name
-        sh '''
-          docker-compose \
-            -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") \
-            up --abort-on-container-exit --build
-        '''
-      }
-      post {
-        always {
-          sh 'docker-compose -p $(echo $BUILD_TAG | tr "[:upper:]" "[:lower:]") down --remove-orphans -v || true'
+    post {
+      always {
+        script {
+          if (fileExists('target/surefire-reports')) {
+            junit 'target/surefire-reports/*.xml'
+          }
+        }
+        retry(2) {
+          archiveArtifacts artifacts: 'target/allure-results/**', fingerprint: true
+          allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
         }
       }
     }
   }
-
-  post {
-    always {
-      script {
-        if (fileExists('target/surefire-reports')) {
-          junit 'target/surefire-reports/*.xml'
-        }
-      }
-      // Retry non-resumable steps in case Jenkins restarts
-      retry(2) {
-        archiveArtifacts artifacts: 'target/allure-results/**', fingerprint: true
-        allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
-      }
-    }
-  }
-}
