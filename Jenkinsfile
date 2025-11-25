@@ -19,6 +19,17 @@ pipeline {
         }
       }
 
+      stage('Start Containers') {
+        steps {
+          sh 'docker-compose down --remove-orphans -v || true'
+          sh '''
+            docker-compose \
+              -p mysqldatabasevalidation \
+              up -d --build
+          '''
+        }
+      }
+
       stage('Verify DB Init') {
         steps {
           script {
@@ -38,25 +49,23 @@ pipeline {
         }
       }
 
-      stage('Run Tests in Docker Compose') {
+      stage('Run Tests') {
         steps {
-          sh 'docker-compose down --remove-orphans -v || true'
           sh '''
-            docker-compose \
-              -p mysqldatabasevalidation \
-              up --abort-on-container-exit --build
+            docker exec mysqldatabasevalidation-test-runner-1 \
+              mvn clean test \
+                -DDB_URL=jdbc:mysql://mysql:3306/appdb \
+                -DDB_USER=appuser \
+                -DDB_PASSWORD=apppass
           '''
-        }
-        post {
-          always {
-            sh 'docker-compose -p mysqldatabasevalidation down --remove-orphans -v || true'
-          }
         }
       }
     }
 
     post {
       always {
+        sh 'docker-compose -p mysqldatabasevalidation down --remove-orphans -v || true'
+
         script {
           if (fileExists('target/surefire-reports')) {
             junit 'target/surefire-reports/*.xml'
