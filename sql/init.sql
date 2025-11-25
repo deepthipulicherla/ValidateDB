@@ -1,7 +1,6 @@
 CREATE DATABASE IF NOT EXISTS appdb;
-USE appdb;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255) NOT NULL,
   salary DECIMAL(10,2) NOT NULL DEFAULT 0.0,
@@ -9,12 +8,12 @@ CREATE TABLE users (
 );
 
 INSERT INTO users (email, salary, status)
-VALUES ('deep1@gmail.com', 55000.00, 'ACTIVE'),
-       ('bob@gmail.com', 45000.00, 'ACTIVE'),
-       ('deep@gmail.com', 48000.00, 'ACTIVE'),
-       ('deep@gmail.com', 53000.00, 'ACTIVE'),
-       ('deep@gmail.com', 54000.00, 'ACTIVE'),
-       ('deep@gmail.com', 51000.00, 'ACTIVE'),
-       ('deep@gmail.com', 49000.00, 'ACTIVE'),
-       ('deep@gmail.com', 52000.00, 'ACTIVE');
-
+VALUES
+  ('deep1@gmail.com', 55000.00, 'ACTIVE'),
+  ('bob@gmail.com', 45000.00, 'ACTIVE'),
+  ('deep@gmail.com', 48000.00, 'ACTIVE'),
+  ('deep@gmail.com', 53000.00, 'ACTIVE'),
+  ('deep@gmail.com', 54000.00, 'ACTIVE'),
+  ('deep@gmail.com', 51000.00, 'ACTIVE'),
+  ('deep@gmail.com', 49000.00, 'ACTIVE'),
+  ('deep@gmail.com', 52000.00, 'ACTIVE');
