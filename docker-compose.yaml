@@ -16,7 +16,7 @@ services:
       retries: 15
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d   # ✅ mount directory containing init.sql
+      - ./sql:/docker-entrypoint-initdb.d   # mount directory containing init.sql
 
   test-runner:
     image: maven:3.9.9-eclipse-temurin-21
@@ -25,8 +25,8 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      - ${WORKSPACE:-C:/Users/Deepthi/IdeaProjects/MysqlDatabaseValidation}:/app
-    working_dir: /app
+      - ./:/app        # ✅ mount repo root so pom.xml is visible
+    working_dir: /app  # ✅ run Maven from repo root
     command: >
       mvn clean test
       -DDB_URL=jdbc:mysql://mysql:3306/appdb
