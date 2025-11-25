@@ -53,7 +53,10 @@ pipeline {
         steps {
           sh '''
             docker exec mysqldatabasevalidation-test-runner-1 \
-              mvn clean test -DDB_URL=jdbc:mysql://mysql:3306/appdb -DDB_USER=appuser -DDB_PASSWORD=apppass
+              mvn clean test
+                -DDB_URL=jdbc:mysql://mysql:3306/appdb \
+                -DDB_USER=appuser \
+                -DDB_PASSWORD=apppass
           '''
         }
       }

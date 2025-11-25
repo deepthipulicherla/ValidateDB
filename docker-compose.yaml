@@ -4,34 +4,22 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysqldatabasevalidation-mysql-1
+    user: "1000:1000"   # Fix permission issue for Jenkins
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: appdb
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
-      interval: 15s
-      timeout: 10s
-      retries: 15
+    ports:
+      - "3306:3306"     # Optional: Remove if not required locally
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d   # mount directory containing init.sql
-
-  test-runner:
-    image: maven:3.9.9-eclipse-temurin-21
-    container_name: mysqldatabasevalidation-test-runner-1
-    depends_on:
-      mysql:
-        condition: service_healthy
-    volumes:
-      - ./:/app        # ✅ mount repo root so pom.xml is visible
-    working_dir: /app  # ✅ run Maven from repo root
-    command: >
-      mvn clean test
-      -DDB_URL=jdbc:mysql://mysql:3306/appdb
-      -DDB_USER=appuser
-      -DDB_PASSWORD=apppass
+      - ./sql:/docker-entrypoint-initdb.d:ro  # Mount SQL scripts as readonly
+    healthcheck:  # Added healthcheck to ensure DB is up before tests
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-papppass"]
+      interval: 5s
+      retries: 10
+      timeout: 5s
 
 volumes:
   mysql_data:

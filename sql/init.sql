@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS appdb;
+
 USE appdb;
 
 --CREATE USER 'testuser'@'%' IDENTIFIED BY 'testpass';
