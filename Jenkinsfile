@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'dbvalidate' }
+  agent any
 
   stages {
     stage('Checkout') {
